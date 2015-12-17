@@ -24,6 +24,16 @@ $ stack_to_flame.sh < stacks.out > flame.svg
 $ open flame.svg
 ```
 
+To track all processes on your vm in elixir you can use the following example:
+
+```elixir
+> tracer = :eflame.start_flame
+> do_stuff()
+> :eflame.stop_flame(tracer, "filename")
+```
+
+The filename is optional.
+
 ### Notes
 
 * as stacks are collected through tracing, blocking calls are noticed and are drawn in blue
