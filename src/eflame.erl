@@ -2,7 +2,11 @@
 -export([apply/2,
          apply/3,
          apply/4,
-         apply/5]).
+         apply/5,
+         start_flame/0,
+         start_flame/1,
+         stop_flame/1,
+         stop_flame/2]).
 
 -define(RESOLUTION, 1000). %% us
 -record(dump, {stack=[], us=0, acc=[]}). % per-process state
@@ -36,6 +40,27 @@ apply_fun({M, F}, A) ->
     erlang:apply(M, F, A);
 apply_fun(F, A) ->
     erlang:apply(F, A).
+
+start_flame() ->
+    start_flame(?DEFAULT_MODE).
+
+start_flame(Mode) ->
+    Tracer = spawn_tracer(),
+    MatchSpec = [{'_', [], [{message, {{cp, {caller}}}}]}],
+    erlang:trace_pattern(on_load, MatchSpec, [local]),
+    erlang:trace_pattern({'_', '_', '_'}, MatchSpec, [local]),
+    erlang:trace(all, true, [{tracer, Tracer} | trace_flags(Mode)]),
+    Tracer.
+
+
+stop_flame(Tracer) ->
+    stop_flame(Tracer, ?DEFAULT_OUTPUT_FILE).
+
+stop_flame(Tracer, OutputFile) ->
+    {ok, Bytes} = stop_trace(Tracer, all),
+    ok = file:write_file(OutputFile, Bytes),
+    ok.
+
 
 start_trace(Tracer, Target, Mode) ->
     MatchSpec = [{'_', [], [{message, {{cp, {caller}}}}]}],
