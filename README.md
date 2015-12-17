@@ -34,6 +34,19 @@ To track all processes on your vm in elixir you can use the following example:
 
 The filename is optional.
 
+### Mix
+
+To use eflames in Mix, add the following to your mix.exs:
+
+```elixir
+defp deps() do
+[
+...
+  {:eflame, ~r/.*/, github: "grundrauschen/eflame", branch: "all_processes", compile: "rebar compile"}
+]
+end
+```
+
 ### Notes
 
 * as stacks are collected through tracing, blocking calls are noticed and are drawn in blue
